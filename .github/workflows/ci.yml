@@ -15,6 +15,12 @@ jobs:
           cache: pip
       - run: pip install -e ".[dev]"
       - run: ruff check --output-format=github .
-      - run: ruff format --check .
+      - name: Format check
+        shell: bash
+        run: |
+          set +e
+          ruff format --diff . > fmt.diff 2>&1; code=$?
+          if [ $code -ne 0 ]; then head -20 fmt.diff | sed 's/^/::error::/'; fi   # show diff on run page
+          exit $code
       - run: pytest
       - run: docker build -t app .
