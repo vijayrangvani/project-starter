@@ -1,4 +1,5 @@
 """Entry point. Run: make run  (or: uvicorn app.main:app --reload)"""
+
 import logging
 
 from fastapi import FastAPI

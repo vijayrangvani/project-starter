@@ -1,4 +1,5 @@
 """Settings from environment variables / .env. Add a field here for every new config value."""
+
 from functools import lru_cache
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
