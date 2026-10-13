@@ -7,7 +7,7 @@
 name = "app"                       # TODO: rename to your project
 version = "0.1.0"
 description = "TODO: one line on what this does"
-requires-python = ">=3.12"
+requires-python = ">=3.12"           # minimum allowed; the exact dev/CI version is pinned in .python-version
 dependencies = [
     "fastapi>=0.115",
     "uvicorn[standard]>=0.30",

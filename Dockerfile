@@ -1,3 +1,4 @@
+# keep in step with .python-version
 FROM python:3.12-slim
 # uv binary from the official image (pinned version)
 COPY --from=ghcr.io/astral-sh/uv:0.11.32 /uv /bin/uv
