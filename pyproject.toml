@@ -1,5 +1,7 @@
 # One file for project metadata, dependencies AND tool config (ruff, pytest).
-# Install for development:  pip install -e ".[dev]"   (-e = edits apply without reinstalling)
+# Managed with uv:  uv sync  (creates .venv, installs exact versions from uv.lock)
+# Add a package:    uv add httpx        Dev-only:  uv add --dev pytest-cov
+# Never edit uv.lock by hand; commit it together with pyproject.toml.
 
 [project]
 name = "app"                       # TODO: rename to your project
@@ -12,8 +14,8 @@ dependencies = [
     "pydantic-settings>=2.4",
 ]
 
-[project.optional-dependencies]
-dev = ["pytest>=8", "httpx>=0.27", "ruff>=0.6", "pre-commit>=3.7"]
+[dependency-groups]
+dev = ["pytest>=8", "httpx>=0.27", "ruff>=0.6", "pre-commit>=3.7"]   # installed by `uv sync`, not in production
 
 [build-system]
 requires = ["setuptools>=69"]

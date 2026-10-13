@@ -9,18 +9,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
+      - uses: astral-sh/setup-uv@v6
         with:
           python-version: "3.12"
-          cache: pip
-      - run: pip install -e ".[dev]"
-      - run: ruff check --output-format=github .
+          enable-cache: true           # caches downloaded packages between runs
+      - run: uv sync --locked          # fails if uv.lock is missing or out of date with pyproject.toml
+      - run: uv run ruff check --output-format=github .
       - name: Format check
         shell: bash
         run: |
           set +e
-          ruff format --diff . > fmt.diff 2>&1; code=$?
+          uv run ruff format --diff . > fmt.diff 2>&1; code=$?
           if [ $code -ne 0 ]; then head -20 fmt.diff | sed 's/^/::error::/'; fi   # show diff on run page
           exit $code
-      - run: pytest
+      - run: uv run pytest
       - run: docker build -t app .

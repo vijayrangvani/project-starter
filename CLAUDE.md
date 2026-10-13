@@ -3,6 +3,7 @@
 ## Commands
 - Install: `make install` · Run: `make run` · Test: `make test` · Lint/format: `make format`
 - Before saying a task is done: `make check` must pass.
+- Dependencies: `uv add <pkg>` / `uv add --dev <pkg>` — never pip install, never edit uv.lock by hand.
 
 ## Structure
 - `src/app/` application code (`main.py` entry, `config.py` settings from env)

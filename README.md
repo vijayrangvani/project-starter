@@ -21,9 +21,9 @@ Short explanation of each component and how a request flows through.
 
 ## Run locally
 ```bash
-python -m venv .venv && source .venv/bin/activate
+# one-time: install uv  →  curl -LsSf https://astral.sh/uv/install.sh | sh   (or: brew install uv)
 cp .env.example .env
-make install
+make install      # uv sync: creates .venv with the exact versions in uv.lock
 make run          # http://localhost:8000/docs
 make test
 ```
@@ -31,7 +31,7 @@ make test
 ## Not building an API?
 This starter defaults to FastAPI because most AI projects end up served behind an API. For a CLI tool, data pipeline, batch job or notebook-style project, keep everything else (tests, lint, CI, pre-commit, docs) and change 4 things:
 
-1. **Dependencies:** in `pyproject.toml`, remove `fastapi` and `uvicorn[standard]` (keep `pydantic-settings`) and add what you need, e.g. `pandas`, `langgraph`, `qdrant-client`. Remove `httpx` from `dev` if nothing uses it.
+1. **Dependencies:** `uv remove fastapi uvicorn` (keep `pydantic-settings`), then `uv add` what you need, e.g. `uv add pandas langgraph qdrant-client`. `uv remove --dev httpx` if nothing uses it. uv updates `pyproject.toml` and `uv.lock` together — commit both.
 2. **Entry point:** replace `src/app/main.py` with a plain function:
    ```python
    """Entry point. Run: make run  (or: python -m app.main)"""
@@ -62,7 +62,7 @@ This starter defaults to FastAPI because most AI projects end up served behind a
    def test_run_succeeds():
        assert run() == 0
    ```
-4. **Run + Docker:** in the `Makefile`, change `run` to `python -m app.main`. Delete the `Dockerfile` and the CI `docker build` step if nothing gets deployed; otherwise change its `CMD` to `["python", "-m", "app.main"]` and drop `EXPOSE 8000`.
+4. **Run + Docker:** in the `Makefile`, change `run` to `uv run python -m app.main`. Delete the `Dockerfile` and the CI `docker build` step if nothing gets deployed; otherwise change its `CMD` to `["python", "-m", "app.main"]` (the venv is already on PATH) and drop `EXPOSE 8000`.
 
 Then run `make check`: it should pass before your first real commit.
 

@@ -1,0 +1,29 @@
+# Manual "refresh the lockfile" button: Actions tab → update-lock → Run workflow.
+# Locally you'd just run `uv lock` (or `make upgrade`) — this is for doing it from GitHub.
+name: update-lock
+on:
+  workflow_dispatch:
+    inputs:
+      upgrade:
+        description: "Upgrade packages to newest allowed versions?"
+        type: boolean
+        default: false
+permissions:
+  contents: write                      # allow the job to push the new uv.lock
+jobs:
+  lock:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+      - run: uv lock ${{ inputs.upgrade && '--upgrade' || '' }}
+      - name: Commit uv.lock if it changed
+        run: |
+          if git diff --quiet --exit-code uv.lock 2>/dev/null && git ls-files --error-unmatch uv.lock >/dev/null 2>&1; then
+            echo "uv.lock unchanged"; exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add uv.lock
+          git commit -m "chore: update uv.lock"
+          git push

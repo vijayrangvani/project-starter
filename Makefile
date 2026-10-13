@@ -1,28 +1,36 @@
 # Short names for commands you run 20 times a day. `make help` lists them.
 # NOTE: indentation in Makefiles must be a TAB, not spaces.
-.PHONY: help install run test lint format check docker
+# Everything runs through uv: `uv run X` uses the project's .venv, no activate needed.
+.PHONY: help install run test lint format check lock upgrade docker
 
 help:            ## list commands
 	@grep -E '^[a-z]+:.*##' Makefile | awk -F':.*## ' '{printf "  %-10s %s\n", $$1, $$2}'
 
-install:         ## create venv deps + git hooks
-	pip install -e ".[dev]"
-	pre-commit install
+install:         ## create .venv with exact locked versions + git hooks
+	uv sync
+	uv run pre-commit install
 
 run:             ## start the API with auto-reload
-	uvicorn app.main:app --reload
+	uv run uvicorn app.main:app --reload
 
 test:            ## run tests
-	pytest
+	uv run pytest
 
 lint:            ## check style / bugs
-	ruff check .
+	uv run ruff check .
 
 format:          ## auto-fix formatting and imports
-	ruff format .
-	ruff check --fix .
+	uv run ruff format .
+	uv run ruff check --fix .
 
 check: lint test ## what CI runs
+
+lock:            ## re-resolve uv.lock after editing pyproject.toml by hand
+	uv lock
+
+upgrade:         ## upgrade all packages within pyproject ranges (review the diff!)
+	uv lock --upgrade
+	uv sync
 
 docker:          ## build and run the image
 	docker build -t app .
