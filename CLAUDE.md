@@ -6,7 +6,8 @@
 - Dependencies: `uv add <pkg>` / `uv add --dev <pkg>` — never pip install, never edit uv.lock by hand.
 
 ## Structure
-- `src/app/` application code (`main.py` entry, `config.py` settings from env)
+- `src/app/` application code (`main.py` entry with `/health` + `/ready`, `config.py` settings from env)
+- New dependency (DB, Redis, model)? Register a check in `READINESS_CHECKS` so `/ready` covers it.
 - `tests/` pytest; every new endpoint gets a test
 - `docs/decisions.md` record of design decisions
 
