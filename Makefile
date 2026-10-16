@@ -16,14 +16,15 @@ run:             ## start the API with auto-reload
 test:            ## run tests
 	uv run pytest
 
-lint:            ## check style / bugs
+lint:            ## check style / bugs / formatting (no changes made)
 	uv run ruff check .
+	uv run ruff format --check .
 
 format:          ## auto-fix formatting and imports
 	uv run ruff format .
 	uv run ruff check --fix .
 
-check: lint test ## what CI runs
+check: lint test ## what CI runs (lint + format check + tests)
 
 lock:            ## re-resolve uv.lock after editing pyproject.toml by hand
 	uv lock

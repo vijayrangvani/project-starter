@@ -1,74 +1,35 @@
-# Project name
+# project-starter
 
-> One sentence: what this does and for whom.
+A lean Python/FastAPI template I use to start new projects with tests, linting, CI and Docker already working — so day one is spent on the actual problem, not setup.
 
-<!-- Demo GIF or screenshot here. Recruiters look at this first. -->
-
-## Problem
-What real problem does this solve? Who has it? Why do existing approaches fall short?
-
-## Architecture
-```
-client -> FastAPI -> (DB / LLM / queue ...)
-```
-Short explanation of each component and how a request flows through.
-
-## Tech stack
-| Layer | Choice | Why |
+## What you get
+| Piece | Choice | Why |
 |---|---|---|
-| API | FastAPI | |
-| ... | | |
+| Dependencies | uv + `uv.lock` | Fast, reproducible installs; CI fails if the lock is stale |
+| API | FastAPI | Most of my AI/backend projects end up served behind an API |
+| Config | pydantic-settings | All settings from env vars, validated at startup; no secrets in code |
+| Health | `/health` + `/ready` | Liveness never checks dependencies (a slow DB shouldn't restart the pod); readiness runs registered checks (each with its own client timeout) and returns 503 on failure |
+| Quality | ruff, pytest, pre-commit | `make check` runs the same lint, format and test steps as CI (CI also builds the Docker image) |
+| Container | Dockerfile | Cached dependency layer, locked versions, no dev deps, non-root user |
+| Decisions | `docs/decisions.md` | Record of why each choice was made |
 
-## Run locally
-```bash
-# one-time: install uv  →  curl -LsSf https://astral.sh/uv/install.sh | sh   (or: brew install uv)
-cp .env.example .env
-make install      # uv sync: creates .venv with the exact versions in uv.lock
-make run          # http://localhost:8000/docs
-make test
-```
+Deliberately **not** included: databases, LLM clients, RAG, auth. Each project needs different ones; they get added when a real project needs them.
 
-## Not building an API?
-This starter defaults to FastAPI because most AI projects end up served behind an API. For a CLI tool, data pipeline, batch job or notebook-style project, keep everything else (tests, lint, CI, pre-commit, docs) and change 4 things:
-
-1. **Dependencies:** `uv remove fastapi uvicorn` (keep `pydantic-settings`), then `uv add` what you need, e.g. `uv add pandas langgraph qdrant-client`. `uv remove --dev httpx` if nothing uses it. uv updates `pyproject.toml` and `uv.lock` together — commit both.
-2. **Entry point:** replace `src/app/main.py` with a plain function:
-   ```python
-   """Entry point. Run: make run  (or: python -m app.main)"""
-
-   import logging
-
-   from app.config import get_settings
-
-   log = logging.getLogger(__name__)
-
-
-   def run() -> int:
-       settings = get_settings()
-       logging.basicConfig(level=settings.log_level)
-       log.info("starting %s", settings.app_name)
-       # your pipeline / agent / job here
-       return 0
-
-
-   if __name__ == "__main__":
-       raise SystemExit(run())
+## Start a new project from it
+1. On GitHub: **Use this template → Create a new repository**, then clone it.
+2. Rename the project in `pyproject.toml` (`name`, `description`) and `APP_NAME` in `.env.example`.
+3. Replace this README with [`docs/README_TEMPLATE.md`](docs/README_TEMPLATE.md) and fill it in.
+4. Run it:
+   ```bash
+   # one-time: install uv  →  curl -LsSf https://astral.sh/uv/install.sh | sh
+   cp .env.example .env
+   make install   # .venv with locked versions + git hooks
+   make check     # lint + format check + tests — must pass before the first commit
+   make run       # http://localhost:8000/docs
    ```
-   Need command-line arguments? Copy the argparse pattern from `engineering-templates/python/cli_script.py`.
-3. **Test:** replace `tests/test_health.py` with a direct call:
-   ```python
-   from app.main import run
+5. Adding a dependency such as a database? `uv add <pkg>`, then register a check in `READINESS_CHECKS` in `src/app/main.py` so `/ready` covers it, using the client's own timeout.
 
+Not building an API (CLI, pipeline, batch job)? See "Not building an API?" in the README template.
 
-   def test_run_succeeds():
-       assert run() == 0
-   ```
-4. **Run + Docker:** in the `Makefile`, change `run` to `uv run python -m app.main`. Delete the `Dockerfile` and the CI `docker build` step if nothing gets deployed; otherwise change its `CMD` to `["python", "-m", "app.main"]` (the venv is already on PATH) and drop `EXPOSE 8000`.
-
-Then run `make check`: it should pass before your first real commit.
-
-## Key decisions & trade-offs
-See [docs/decisions.md](docs/decisions.md). Summarise the 2–3 most important here.
-
-## What I'd do next
-Honest limitations and the next improvements (shows engineering judgement).
+## Commands
+`make help` lists them all: `install`, `run`, `test`, `lint`, `format`, `check`, `lock`, `upgrade`, `docker`.

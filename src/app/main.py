@@ -18,9 +18,13 @@ log = logging.getLogger(__name__)
 app = FastAPI(title=settings.app_name)
 
 # Readiness checks: name -> function that raises if the dependency is unusable.
-# Register one per dependency as you add it, e.g.
+# Every check MUST use its client's own timeout, so a hung dependency fails fast instead of
+# stalling /ready until the probe gives up. Keep the timeout below the probe's timeoutSeconds.
+#   engine = create_engine(url, connect_args={"connect_timeout": 2})
 #   READINESS_CHECKS["database"] = lambda: engine.connect().close()
+#   redis_client = Redis(socket_timeout=2)
 #   READINESS_CHECKS["redis"] = lambda: redis_client.ping()
+#   READINESS_CHECKS["llm_api"] = lambda: httpx.get(url, timeout=2).raise_for_status()
 READINESS_CHECKS: dict[str, Callable[[], object]] = {}
 
 
@@ -37,7 +41,7 @@ def ready() -> JSONResponse:
     for name, check in READINESS_CHECKS.items():
         try:
             check()
-        except Exception as e:  # noqa: BLE001 - any failure means "not ready"
+        except Exception as e:  # any failure means "not ready"
             log.warning("readiness check %s failed: %s", name, e)
             failed[name] = type(e).__name__  # error type only; details stay in the logs
     if failed:
