@@ -9,7 +9,6 @@ class Settings(BaseSettings):
     app_name: str = "app"
     environment: str = "dev"  # dev / staging / prod
     log_level: str = "INFO"
-    readiness_timeout_seconds: float = 2.0  # keep below the load balancer / k8s probe timeout
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

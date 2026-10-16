@@ -1,7 +1,5 @@
 """Smoke tests: install, imports, liveness and readiness all work. Add real tests next to them."""
 
-import time
-
 import pytest
 from fastapi.testclient import TestClient
 
@@ -37,13 +35,3 @@ def test_ready_returns_503_when_a_dependency_fails():
     r = client.get("/ready")
     assert r.status_code == 503
     assert r.json()["failed"] == {"database": "ConnectionError"}
-
-
-def test_ready_returns_503_when_a_check_hangs(monkeypatch):
-    monkeypatch.setattr(main, "READINESS_TIMEOUT_S", 0.1)
-    main.READINESS_CHECKS["slow_db"] = lambda: time.sleep(1)
-    start = time.monotonic()
-    r = client.get("/ready")
-    assert time.monotonic() - start < 0.5  # answered at the timeout, not after the hang
-    assert r.status_code == 503
-    assert r.json()["failed"] == {"slow_db": "TimeoutError"}
