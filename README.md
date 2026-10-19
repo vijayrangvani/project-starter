@@ -104,6 +104,26 @@ graph TD
 |-----------|------|
 | **<Component>** | <What it does and why it exists> |
 
+### Request Flow
+
+<!-- One request, step by step, in time order. Add a participant per component. -->
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant A as API
+    participant D as <Dependency>
+
+    C->>A: <METHOD> /<endpoint> {<payload>}
+    A->>D: <what the API asks for>
+    alt <normal case>
+        D-->>A: <result>
+    else <failure or fallback case>
+        A-->>C: <error / fallback response>
+    end
+    A-->>C: {<response>}
+```
+
 ---
 
 ## 🛠️ Technology Stack
