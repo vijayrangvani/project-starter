@@ -38,7 +38,7 @@ Rules:
 - [⚡ Quick Start](#-quick-start)
 - [⚙️ Setup & Installation](#️-setup--installation)
 - [🚀 Walkthrough](#-walkthrough)
-- [🎥 YouTube Demonstration](#-youtube-demonstration)
+- [🎥 Video Demonstration](#-video-demonstration)
 - [🧩 Troubleshooting](#-troubleshooting)
 - [📌 Assignment Coverage](#-assignment-coverage)
 - [👨‍💻 Author](#-author)
@@ -207,7 +207,7 @@ make docker
 
 ---
 
-## 🎥 YouTube Demonstration
+## 🎥 Video Demonstration
 
 | # | Section |
 |---|---------|
@@ -217,7 +217,7 @@ make docker
 | 4 | Failure case |
 | 5 | Design decisions |
 
-<!-- Add the link once published: [▶ Watch on YouTube](https://youtu.be/...) -->
+<!-- Add the video link once published: [▶ Watch the demo](<VIDEO_URL>) -->
 
 ---
 
